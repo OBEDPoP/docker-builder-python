@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Builder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: auto; }
+        .loading { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Docker Builder UI</h2>
+        <form method="POST">
+            <label for="registry_url">Registry URL:</label>
+            <input type="text" name="registry_url" id="registry_url"><br><br>
+            
+            <label for="registry_username">Registry Username:</label>
+            <input type="text" name="registry_username" id="registry_username"><br><br>
+            
+            <label for="registry_password">Registry Password:</label>
+            <input type="password" name="registry_password" id="registry_password"><br><br>
+            
+            <button type="submit" onclick="showLoading()">Build & Push</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <p>Building Docker Image... Please wait.</p>
+        </div>
+        
+        {% if message %}
+            <p><strong>{{ message }}</strong></p>
+            <p>Docker Image: {{ image }}</p>
+            <p>Required Files:</p>
+            <ul>
+                {% for file in required_files %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    
+    <script>
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
+        }
+    </script>
+</body>
+</html>
