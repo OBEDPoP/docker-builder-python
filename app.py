@@ -9,6 +9,18 @@ def load_manifest():
     with open("manifest.yaml", "r") as file:
         return yaml.safe_load(file)
 
+def list_required_files():
+    required_files = []
+    if os.path.exists("requirements.txt"):
+        required_files.append("requirements.txt")
+    if os.path.exists("package.json"):
+        required_files.append("package.json")
+    if os.path.exists("Pipfile"):
+        required_files.append("Pipfile")
+    if os.path.exists("pom.xml"):
+        required_files.append("pom.xml")
+    return required_files
+
 def generate_dockerfile(manifest):
     appname = manifest.get("appname", "default_app")
     tag = manifest.get("tag", "latest")
@@ -65,6 +77,7 @@ def build_and_push_docker_image(appname, tag, registry_url=None, registry_userna
 def build():
     manifest = load_manifest()
     appname, tag = generate_dockerfile(manifest)
+    required_files = list_required_files()
     
     registry_url = request.json.get("registry_url")
     registry_username = request.json.get("registry_username")
@@ -72,7 +85,11 @@ def build():
     
     image_name = build_and_push_docker_image(appname, tag, registry_url, registry_username, registry_password)
     
-    return jsonify({"message": "Docker image built successfully", "image": image_name})
+    return jsonify({
+        "message": "Docker image built successfully",
+        "image": image_name,
+        "required_files": required_files
+    })
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
