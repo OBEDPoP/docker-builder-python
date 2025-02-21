@@ -1,7 +1,7 @@
 import os
 import yaml
 import subprocess
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -73,23 +73,22 @@ def build_and_push_docker_image(appname, tag, registry_url=None, registry_userna
     
     return image_name
 
-@app.route("/build", methods=["POST"])
-def build():
-    manifest = load_manifest()
-    appname, tag = generate_dockerfile(manifest)
-    required_files = list_required_files()
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        manifest = load_manifest()
+        appname, tag = generate_dockerfile(manifest)
+        required_files = list_required_files()
+        
+        registry_url = request.form.get("registry_url")
+        registry_username = request.form.get("registry_username")
+        registry_password = request.form.get("registry_password")
+        
+        image_name = build_and_push_docker_image(appname, tag, registry_url, registry_username, registry_password)
+        
+        return render_template("index.html", message="Docker image built successfully", image=image_name, required_files=required_files)
     
-    registry_url = request.json.get("registry_url")
-    registry_username = request.json.get("registry_username")
-    registry_password = request.json.get("registry_password")
-    
-    image_name = build_and_push_docker_image(appname, tag, registry_url, registry_username, registry_password)
-    
-    return jsonify({
-        "message": "Docker image built successfully",
-        "image": image_name,
-        "required_files": required_files
-    })
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
