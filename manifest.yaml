@@ -1,0 +1,7 @@
+- appname: docker_build_app
+  tag: docker_build_app:latest
+  multistage: yes
+  Expose: 3000
+  Env Variables:
+    - endpoint: docker.io
+      pass: {xxxxxxxxxx.key.com}
